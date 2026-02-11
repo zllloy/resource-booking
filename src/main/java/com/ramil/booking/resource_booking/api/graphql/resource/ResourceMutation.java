@@ -35,7 +35,7 @@ public class ResourceMutation {
 
   @MutationMapping
   @PreAuthorize("hasRole('ADMIN')")
-  public boolean deleteResource(@Argument UUID id) {
+  public Boolean deleteResource(@Argument UUID id) {
     resourceService.delete(id);
     return true;
   }
@@ -52,6 +52,7 @@ public class ResourceMutation {
     return resourceService.deactivate(id);
   }
 
+  // input-ы как вложенные record, чтобы не плодить файлы
   public record CreateResourceInput(String name, String description) {}
   public record UpdateResourceInput(UUID id, String name, String description) {}
 }
