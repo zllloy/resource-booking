@@ -1,3 +1,34 @@
 type Query {
-    ping: String!
+  ping: String!
+}
+
+type Resource {
+  id: ID!
+  name: String!
+  description: String
+  active: Boolean!
+}
+
+input CreateResourceInput {
+  name: String!
+  description: String
+}
+
+input UpdateResourceInput {
+  id: ID!
+  name: String!
+  description: String
+}
+
+type Query {
+  resourceById(id: ID!): Resource!
+  resources(active: Boolean): [Resource!]!
+}
+
+type Mutation {
+  createResource(input: CreateResourceInput!): Resource!
+  updateResource(input: UpdateResourceInput!): Resource!
+  deleteResource(id: ID!): Boolean!
+  activateResource(id: ID!): Resource!
+  deactivateResource(id: ID!): Resource!
 }

@@ -11,16 +11,16 @@ import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 
-import com.ramil.booking.resource_booking.domain.dto.CreateBookingCommand;
-import com.ramil.booking.resource_booking.domain.entity.AppUserEntity;
-import com.ramil.booking.resource_booking.domain.entity.ResourceEntity;
-import com.ramil.booking.resource_booking.domain.exception.BookingConflictException;
-import com.ramil.booking.resource_booking.domain.exception.ResourceInactiveException;
-import com.ramil.booking.resource_booking.domain.model.Role;
-import com.ramil.booking.resource_booking.domain.repository.AppUserRepository;
-import com.ramil.booking.resource_booking.domain.repository.BookingRepository;
-import com.ramil.booking.resource_booking.domain.repository.ResourceRepository;
-import com.ramil.booking.resource_booking.domain.service.BookingService;
+import com.ramil.booking.resource_booking.domain.booking.exception.BookingConflictException;
+import com.ramil.booking.resource_booking.domain.booking.repository.BookingRepository;
+import com.ramil.booking.resource_booking.domain.booking.service.BookingService;
+import com.ramil.booking.resource_booking.domain.resource.dto.CreateBookingCommand;
+import com.ramil.booking.resource_booking.domain.resource.entity.ResourceEntity;
+import com.ramil.booking.resource_booking.domain.resource.exception.ResourceInactiveException;
+import com.ramil.booking.resource_booking.domain.resource.repository.ResourceRepository;
+import com.ramil.booking.resource_booking.domain.user.entity.AppUserEntity;
+import com.ramil.booking.resource_booking.domain.user.model.Role;
+import com.ramil.booking.resource_booking.domain.user.repository.AppUserRepository;
 
 class BookingServiceTest {
 
@@ -66,7 +66,7 @@ class BookingServiceTest {
     OffsetDateTime end = start.plusHours(1);
 
     when(bookingRepository.findConflicts(eq(resourceId), eq(start), eq(end), anyList()))
-        .thenReturn(List.of(mock(com.ramil.booking.resource_booking.domain.entity.BookingEntity.class)));
+        .thenReturn(List.of(mock(com.ramil.booking.resource_booking.domain.booking.entity.BookingEntity.class)));
 
     assertThatThrownBy(() -> bookingService.createDraft(new CreateBookingCommand(userId, resourceId, start, end)))
         .isInstanceOf(BookingConflictException.class);
