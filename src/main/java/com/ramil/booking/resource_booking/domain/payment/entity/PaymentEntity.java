@@ -1,23 +1,18 @@
 package com.ramil.booking.resource_booking.domain.payment.entity;
 
-import java.math.BigDecimal;
-import java.util.UUID;
-
+import com.fasterxml.jackson.databind.JsonNode;
 import com.ramil.booking.resource_booking.domain.booking.entity.BookingEntity;
 import com.ramil.booking.resource_booking.domain.common.persistence.AuditableEntity;
 import com.ramil.booking.resource_booking.domain.payment.model.PaymentProvider;
 import com.ramil.booking.resource_booking.domain.payment.model.PaymentStatus;
 import com.ramil.booking.resource_booking.domain.payment.model.PaymentType;
+import jakarta.persistence.*;
+import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import java.math.BigDecimal;
+import java.util.UUID;
 
 @Entity
 @Table(name = "payment")
@@ -39,6 +34,7 @@ public class PaymentEntity extends AuditableEntity {
     @Column(name = "type", nullable = false, length = 32)
     private PaymentType type;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)
     private PaymentStatus status;
@@ -49,15 +45,21 @@ public class PaymentEntity extends AuditableEntity {
     @Column(name = "currency", nullable = false, length = 3)
     private String currency;
 
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(name = "provider_payload", columnDefinition = "jsonb")
-    private String providerPayload;
+    private JsonNode providerPayload;
 
     protected PaymentEntity() {
     }
 
-    public PaymentEntity(UUID id, BookingEntity booking, PaymentProvider provider,
-            PaymentType type, PaymentStatus status,
-            BigDecimal amount, String currency, String providerPayload) {
+    public PaymentEntity(UUID id,
+                         BookingEntity booking,
+                         PaymentProvider provider,
+                         PaymentType type,
+                         PaymentStatus status,
+                         BigDecimal amount,
+                         String currency,
+                         JsonNode providerPayload) {
         this.id = id;
         this.booking = booking;
         this.provider = provider;
@@ -96,11 +98,7 @@ public class PaymentEntity extends AuditableEntity {
         return currency;
     }
 
-    public String getProviderPayload() {
+    public JsonNode getProviderPayload() {
         return providerPayload;
-    }
-
-    public void setStatus(PaymentStatus status) {
-        this.status = status;
     }
 }

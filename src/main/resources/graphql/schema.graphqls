@@ -7,6 +7,9 @@ type Query {
     booking(id: ID!): Booking!
     myBookings(userId: ID!): [Booking!]!
     allBookings: [Booking!]!
+
+    #payment
+    paymentsByBooking(bookingId: ID!): [Payment!]!
 }
 
 type Mutation {
@@ -22,6 +25,9 @@ type Mutation {
     cancelBooking(id: ID!): Booking!
     markBookingWaitingPayment(id: ID!): Booking!
     confirmBookingAfterPayment(id: ID!): Booking!
+
+    #payment
+    startPayment(input: StartPaymentInput!): Payment!
 }
 
 """
@@ -60,4 +66,29 @@ input CreateBookingDraftInput {
     startTime: String!
     endTime: String!
 }
+
+type Payment {
+    id: ID!
+    bookingId: ID!
+    provider: PaymentProvider!
+    type: PaymentType!
+    status: PaymentStatus!
+    amount: String!
+    currency: String!
+}
+
+enum PaymentProvider { PAYPAL CARD }
+enum PaymentType { INSTANT DEFERRED }
+enum PaymentStatus { NEW SUCCESS FAILED CANCELED }
+
+input StartPaymentInput {
+    bookingId: ID!
+    provider: PaymentProvider!
+    type: PaymentType!
+    amount: String!
+    currency: String!
+    payloadJson: String
+}
+
+
 
