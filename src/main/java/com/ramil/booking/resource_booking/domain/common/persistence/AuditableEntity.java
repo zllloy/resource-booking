@@ -1,6 +1,6 @@
 package com.ramil.booking.resource_booking.domain.common.persistence;
 
-import java.time.OffsetDateTime;
+import java.time.Instant;
 
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -18,7 +18,7 @@ public abstract class AuditableEntity {
 
   @CreatedDate
   @Column(name = "created_at", nullable = false, updatable = false)
-  private OffsetDateTime createdAt;
+  private Instant createdAt;
 
   @CreatedBy
   @Column(name = "created_by", nullable = false, updatable = false, length = 255)
@@ -26,14 +26,25 @@ public abstract class AuditableEntity {
 
   @LastModifiedDate
   @Column(name = "updated_at", nullable = false)
-  private OffsetDateTime updatedAt;
+  private Instant updatedAt;
 
   @LastModifiedBy
   @Column(name = "updated_by", nullable = false, length = 255)
   private String updatedBy;
 
-  public OffsetDateTime getCreatedAt() { return createdAt; }
-  public String getCreatedBy() { return createdBy; }
-  public OffsetDateTime getUpdatedAt() { return updatedAt; }
-  public String getUpdatedBy() { return updatedBy; }
+  public Instant getCreatedAt() {
+    return createdAt;
+  }
+
+  public String getCreatedBy() {
+    return createdBy;
+  }
+
+  public Instant getUpdatedAt() {
+    return updatedAt;
+  }
+
+  public String getUpdatedBy() {
+    return updatedBy;
+  }
 }

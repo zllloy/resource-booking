@@ -1,30 +1,56 @@
 type Query {
-  resource(id: ID!): Resource!
-  resources: [Resource!]!
+    # resources
+    resource(id: ID!): Resource!
+    resources(active: Boolean): [Resource!]!
+
+    # booking
+    booking(id: ID!): Booking!
+    myBookings(userId: ID!): [Booking!]!
+    allBookings: [Booking!]!
 }
 
 type Mutation {
-  createResource(input: CreateResourceInput!): Resource!
-  updateResource(input: UpdateResourceInput!): Resource!
-  deleteResource(id: ID!): Boolean!
-  activateResource(id: ID!): Resource!
-  deactivateResource(id: ID!): Resource!
+    createResource(input: CreateResourceInput!): Resource!
+    updateResource(input: UpdateResourceInput!): Resource!
+    deleteResource(id: ID!): Boolean!
+    activateResource(id: ID!): Resource!
+    deactivateResource(id: ID!): Resource!
+    createBookingDraft(input: CreateBookingDraftInput!): Booking!
 }
 
+"""
+Ресурс для бронирования: переговорка, оборудование, авто и т.д.
+"""
 type Resource {
-  id: ID!
-  name: String!
-  description: String
-  active: Boolean!
+    id: ID!
+    name: String!
+    description: String
+    active: Boolean!
 }
 
 input CreateResourceInput {
-  name: String!
-  description: String
+    name: String!
+    description: String
 }
 
 input UpdateResourceInput {
-  id: ID!
-  name: String!
-  description: String
+    id: ID!
+    name: String!
+    description: String
+}
+
+input CreateBookingDraftInput {
+    userId: ID!
+    resourceId: ID!
+    startTime: String!
+    endTime: String!
+}
+
+type Booking {
+    id: ID!
+    userId: ID!
+    resourceId: ID!
+    startTime: String!
+    endTime: String!
+    status: String!
 }

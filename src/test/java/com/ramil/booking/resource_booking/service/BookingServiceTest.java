@@ -9,12 +9,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import com.ramil.booking.resource_booking.domain.booking.dto.CreateBookingCommand;
 import org.junit.jupiter.api.Test;
 
 import com.ramil.booking.resource_booking.domain.booking.exception.BookingConflictException;
 import com.ramil.booking.resource_booking.domain.booking.repository.BookingRepository;
 import com.ramil.booking.resource_booking.domain.booking.service.BookingService;
-import com.ramil.booking.resource_booking.domain.resource.dto.CreateBookingCommand;
 import com.ramil.booking.resource_booking.domain.resource.entity.ResourceEntity;
 import com.ramil.booking.resource_booking.domain.resource.exception.ResourceInactiveException;
 import com.ramil.booking.resource_booking.domain.resource.repository.ResourceRepository;

@@ -8,8 +8,8 @@ import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
-import com.ramil.booking.resource_booking.domain.booking.service.ResourceService;
 import com.ramil.booking.resource_booking.domain.resource.dto.ResourceView;
+import com.ramil.booking.resource_booking.domain.resource.service.ResourceService;
 
 @Controller
 public class ResourceQuery {
@@ -28,7 +28,8 @@ public class ResourceQuery {
 
   @QueryMapping
   @PreAuthorize("hasRole('ADMIN')")
-  public List<ResourceView> resources() {
-    return resourceService.list();
+  public List<ResourceView> resources(@Argument Boolean active) {
+    return resourceService.list(active);
   }
+
 }

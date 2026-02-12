@@ -7,10 +7,10 @@ import org.springframework.graphql.data.method.annotation.MutationMapping;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 
-import com.ramil.booking.resource_booking.domain.booking.service.ResourceService;
 import com.ramil.booking.resource_booking.domain.resource.dto.CreateResourceCommand;
 import com.ramil.booking.resource_booking.domain.resource.dto.ResourceView;
 import com.ramil.booking.resource_booking.domain.resource.dto.UpdateResourceCommand;
+import com.ramil.booking.resource_booking.domain.resource.service.ResourceService;
 
 @Controller
 public class ResourceMutation {

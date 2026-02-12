@@ -11,12 +11,10 @@ import com.ramil.booking.resource_booking.domain.resource.dto.CreateResourceComm
 import com.ramil.booking.resource_booking.domain.resource.dto.ResourceView;
 import com.ramil.booking.resource_booking.domain.resource.dto.UpdateResourceCommand;
 import com.ramil.booking.resource_booking.domain.resource.entity.ResourceEntity;
+import com.ramil.booking.resource_booking.domain.resource.exception.ResourceNotFoundException;
 import com.ramil.booking.resource_booking.domain.resource.repository.ResourceRepository;
 
-
-
 @Service
-@Transactional
 public class ResourceService {
 
   private final ResourceRepository resourceRepository;
@@ -25,65 +23,87 @@ public class ResourceService {
     this.resourceRepository = Objects.requireNonNull(resourceRepository);
   }
 
+  @Transactional
   public ResourceView create(CreateResourceCommand cmd) {
-    Objects.requireNonNull(cmd);
-    Objects.requireNonNull(cmd.name());
+    Objects.requireNonNull(cmd, "cmd must not be null");
 
-    UUID id = UUID.randomUUID();
-    ResourceEntity entity = new ResourceEntity(id, cmd.name(), cmd.description(), true);
+    ResourceEntity entity = new ResourceEntity(
+        UUID.randomUUID(),
+        cmd.name(),
+        cmd.description(),
+        true);
+
     ResourceEntity saved = resourceRepository.save(entity);
     return toView(saved);
   }
 
+  @Transactional
   public ResourceView update(UpdateResourceCommand cmd) {
-    Objects.requireNonNull(cmd);
-    Objects.requireNonNull(cmd.id());
-    Objects.requireNonNull(cmd.name());
+    Objects.requireNonNull(cmd, "cmd must not be null");
 
     ResourceEntity entity = resourceRepository.findById(cmd.id())
-        .orElseThrow(() -> new IllegalArgumentException("Resource not found: " + cmd.id()));
+        .orElseThrow(() -> new ResourceNotFoundException(cmd.id()));
 
     entity.setName(cmd.name());
     entity.setDescription(cmd.description());
 
-    return toView(entity);
+    ResourceEntity saved = resourceRepository.save(entity);
+    return toView(saved);
   }
 
+  @Transactional
   public void delete(UUID id) {
-    Objects.requireNonNull(id);
+    Objects.requireNonNull(id, "id must not be null");
+
+    if (!resourceRepository.existsById(id)) {
+      throw new ResourceNotFoundException(id);
+    }
     resourceRepository.deleteById(id);
   }
 
+  @Transactional
   public ResourceView activate(UUID id) {
-    Objects.requireNonNull(id);
+    Objects.requireNonNull(id, "id must not be null");
+
     ResourceEntity entity = resourceRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Resource not found: " + id));
+        .orElseThrow(() -> new ResourceNotFoundException(id));
+
     entity.setActive(true);
-    return toView(entity);
+    return toView(resourceRepository.save(entity));
   }
 
+  @Transactional
   public ResourceView deactivate(UUID id) {
-    Objects.requireNonNull(id);
+    Objects.requireNonNull(id, "id must not be null");
+
     ResourceEntity entity = resourceRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Resource not found: " + id));
+        .orElseThrow(() -> new ResourceNotFoundException(id));
+
     entity.setActive(false);
-    return toView(entity);
+    return toView(resourceRepository.save(entity));
   }
 
   @Transactional(readOnly = true)
   public ResourceView getById(UUID id) {
-    Objects.requireNonNull(id);
-    return resourceRepository.findById(id)
-        .map(this::toView)
-        .orElseThrow(() -> new IllegalArgumentException("Resource not found: " + id));
+    Objects.requireNonNull(id, "id must not be null");
+
+    ResourceEntity entity = resourceRepository.findById(id)
+        .orElseThrow(() -> new ResourceNotFoundException(id));
+
+    return toView(entity);
   }
 
   @Transactional(readOnly = true)
-  public List<ResourceView> list() {
-    return resourceRepository.findAll().stream().map(this::toView).toList();
+  public List<ResourceView> list(Boolean active) {
+    List<ResourceEntity> list = (active == null)
+        ? resourceRepository.findAll()
+        : resourceRepository.findByActive(active);
+
+    return list.stream().map(this::toView).toList();
   }
 
   private ResourceView toView(ResourceEntity e) {
     return new ResourceView(e.getId(), e.getName(), e.getDescription(), e.isActive());
   }
+
 }

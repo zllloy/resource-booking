@@ -13,16 +13,22 @@ import com.ramil.booking.resource_booking.domain.booking.model.BookingStatus;
 
 public interface BookingRepository extends JpaRepository<BookingEntity, UUID> {
 
-    @Query("""
-            select b
-            from BookingEntity b
-            where b.resource.id = :resourceId
-              and b.status in :activeStatuses
-              and b.startTime < :endTime
-              and b.endTime > :startTime
-            """)
-    List<BookingEntity> findConflicts(@Param("resourceId") UUID resourceId,
-            @Param("startTime") OffsetDateTime startTime,
-            @Param("endTime") OffsetDateTime endTime,
-            @Param("activeStatuses") List<BookingStatus> activeStatuses);
+  @Query("select b from BookingEntity b where b.user.id = :userId order by b.startTime desc")
+  List<BookingEntity> findByUserId(@Param("userId") UUID userId);
+
+  @Query("select b from BookingEntity b order by b.startTime desc")
+  List<BookingEntity> findAllOrderByStartTimeDesc();
+
+  @Query("""
+          select b
+          from BookingEntity b
+          where b.resource.id = :resourceId
+            and b.status in :activeStatuses
+            and b.startTime < :endTime
+            and b.endTime > :startTime
+          """)
+  List<BookingEntity> findConflicts(@Param("resourceId") UUID resourceId,
+      @Param("startTime") OffsetDateTime startTime,
+      @Param("endTime") OffsetDateTime endTime,
+      @Param("activeStatuses") List<BookingStatus> activeStatuses);
 }
