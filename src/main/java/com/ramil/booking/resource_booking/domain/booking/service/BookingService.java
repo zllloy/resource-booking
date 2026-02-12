@@ -91,7 +91,6 @@ public class BookingService {
         BookingEntity booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + bookingId));
 
-        // Разрешаем отмену только пока не подтверждено
         if (booking.getStatus() == BookingStatus.CONFIRMED) {
             throw new IllegalStateException("Cannot cancel CONFIRMED booking: " + bookingId);
         }
@@ -119,7 +118,6 @@ public class BookingService {
         return bookingRepository.findAll().stream().map(this::toView).toList();
     }
 
-    // На будущее для платежей:
     @Transactional
     public BookingView markWaitingPayment(UUID bookingId) {
         BookingEntity booking = bookingRepository.findById(bookingId)

@@ -21,14 +21,14 @@ public class BookingQuery {
     }
 
     @QueryMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
+    @PreAuthorize("hasRole('ADMIN')")
     public BookingView booking(@Argument UUID id) {
         return bookingService.getById(id);
     }
 
     @QueryMapping
-    @PreAuthorize("hasRole('ADMIN') or hasRole('USER')")
-    public List<BookingView> bookingsForUser(@Argument UUID userId) {
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public List<BookingView> myBookings(@Argument UUID userId) {
         return bookingService.listForUser(userId);
     }
 
@@ -38,3 +38,4 @@ public class BookingQuery {
         return bookingService.listAll();
     }
 }
+

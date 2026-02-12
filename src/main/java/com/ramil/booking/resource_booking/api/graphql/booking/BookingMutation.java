@@ -41,5 +41,18 @@ public class BookingMutation {
         return bookingService.cancel(id);
     }
 
+    @MutationMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public BookingView markBookingWaitingPayment(@Argument UUID id) {
+        return bookingService.markWaitingPayment(id);
+    }
+
+    @MutationMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public BookingView confirmBookingAfterPayment(@Argument UUID id) {
+        return bookingService.confirmAfterPayment(id);
+    }
+
+
     public record CreateBookingInput(String userId, String resourceId, String startTime, String endTime) {}
 }
