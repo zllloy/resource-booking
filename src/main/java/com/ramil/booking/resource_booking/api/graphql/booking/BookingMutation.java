@@ -28,7 +28,6 @@ public class BookingMutation {
         OffsetDateTime end = OffsetDateTime.parse(input.endTime());
 
         return bookingService.createDraft(new CreateBookingCommand(
-                UUID.fromString(input.userId()),
                 UUID.fromString(input.resourceId()),
                 start,
                 end
@@ -37,8 +36,8 @@ public class BookingMutation {
 
     @MutationMapping
     @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
-    public BookingView cancelBooking(@Argument UUID id) {
-        return bookingService.cancel(id);
+    public BookingView cancelBooking(@Argument String id) {
+        return bookingService.cancel(parseUuid(id, "bookingId"));
     }
 
     @MutationMapping
@@ -47,12 +46,15 @@ public class BookingMutation {
         return bookingService.markWaitingPayment(id);
     }
 
-    @MutationMapping
-    @PreAuthorize("hasRole('ADMIN')")
-    public BookingView confirmBookingAfterPayment(@Argument UUID id) {
-        return bookingService.confirmAfterPayment(id);
+    private static UUID parseUuid(String raw, String field) {
+        try {
+            return UUID.fromString(raw);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Invalid UUID in field '" + field + "': " + raw);
+        }
     }
 
+    public record CreateBookingInput(String resourceId, String startTime, String endTime) {
+    }
 
-    public record CreateBookingInput(String userId, String resourceId, String startTime, String endTime) {}
 }

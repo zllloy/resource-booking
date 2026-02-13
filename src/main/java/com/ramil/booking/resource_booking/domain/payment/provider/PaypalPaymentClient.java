@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 
 @Component
-public class FakePaypalProviderClient implements PaymentProviderClient {
+public class PaypalPaymentClient implements PaymentProviderClient {
     @Override public PaymentProvider provider() { return PaymentProvider.PAYPAL; }
 
     @Override

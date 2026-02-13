@@ -13,11 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 public class JpaAuditingConfig {
 
-  @Bean
-  public AuditorAware<String> auditorAware() {
-    return () -> Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
-            .filter(Authentication::isAuthenticated)
-            .map(Authentication::getName)
-            .or(() -> Optional.of("system"));
-  }
+    @Bean
+    public AuditorAware<String> auditorAware() {
+        return () -> Optional.ofNullable(SecurityContextHolder.getContext().getAuthentication())
+                .filter(Authentication::isAuthenticated)
+                .map(Authentication::getName)
+                .filter(name -> !"anonymousUser".equals(name))
+                .or(() -> Optional.of("system"));
+    }
+
 }

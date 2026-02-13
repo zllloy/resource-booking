@@ -5,7 +5,6 @@ type Query {
 
     # booking
     booking(id: ID!): Booking!
-    myBookings(userId: ID!): [Booking!]!
     allBookings: [Booking!]!
 
     #payment
@@ -24,7 +23,6 @@ type Mutation {
     createBookingDraft(input: CreateBookingDraftInput!): Booking!
     cancelBooking(id: ID!): Booking!
     markBookingWaitingPayment(id: ID!): Booking!
-    confirmBookingAfterPayment(id: ID!): Booking!
 
     #payment
     startPayment(input: StartPaymentInput!): Payment!
@@ -61,7 +59,6 @@ type Booking {
 }
 
 input CreateBookingDraftInput {
-    userId: ID!
     resourceId: ID!
     startTime: String!
     endTime: String!

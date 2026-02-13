@@ -1,56 +1,48 @@
 package com.ramil.booking.resource_booking.domain.payment.service;
 
+import java.util.Objects;
+import java.util.UUID;
+
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.ramil.booking.resource_booking.domain.booking.entity.BookingEntity;
+import com.ramil.booking.resource_booking.domain.booking.exception.BookingNotFoundException;
+import com.ramil.booking.resource_booking.domain.booking.exception.BookingStatusException;
 import com.ramil.booking.resource_booking.domain.booking.model.BookingStatus;
 import com.ramil.booking.resource_booking.domain.booking.repository.BookingRepository;
-import com.ramil.booking.resource_booking.domain.booking.service.BookingService;
 import com.ramil.booking.resource_booking.domain.payment.dto.StartPaymentCommand;
 import com.ramil.booking.resource_booking.domain.payment.entity.PaymentEntity;
 import com.ramil.booking.resource_booking.domain.payment.model.PaymentStatus;
 import com.ramil.booking.resource_booking.domain.payment.repository.PaymentRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Objects;
-import java.util.UUID;
 
 @Service
 public class PaymentTxService {
 
-    private static final Logger log = LoggerFactory.getLogger(PaymentTxService.class);
-
     private final PaymentRepository paymentRepository;
     private final BookingRepository bookingRepository;
-    private final BookingService bookingService;
 
-    public PaymentTxService(
-            PaymentRepository paymentRepository,
-            BookingRepository bookingRepository,
-            BookingService bookingService
-    ) {
+    public PaymentTxService(PaymentRepository paymentRepository, BookingRepository bookingRepository) {
         this.paymentRepository = Objects.requireNonNull(paymentRepository);
         this.bookingRepository = Objects.requireNonNull(bookingRepository);
-        this.bookingService = Objects.requireNonNull(bookingService);
     }
 
-    /**
-     * TX#1: создаём payment + переводим booking в WAITING_PAYMENT
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public UUID startPaymentTx(StartPaymentCommand cmd, JsonNode payload) {
         BookingEntity booking = bookingRepository.findById(cmd.bookingId())
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found: " + cmd.bookingId()));
+                .orElseThrow(() -> new BookingNotFoundException(cmd.bookingId()));
 
         if (booking.getStatus() != BookingStatus.DRAFT) {
-            throw new IllegalStateException("Booking must be DRAFT to start payment: " + booking.getId());
+            throw new BookingStatusException(booking.getId(), booking.getStatus(), "DRAFT");
         }
 
+        booking.setStatus(BookingStatus.WAITING_PAYMENT);
+        bookingRepository.saveAndFlush(booking);
+
+        UUID paymentId = UUID.randomUUID();
         PaymentEntity payment = new PaymentEntity(
-                UUID.randomUUID(),
+                paymentId,
                 booking,
                 cmd.provider(),
                 cmd.type(),
@@ -61,34 +53,32 @@ public class PaymentTxService {
         );
 
         paymentRepository.save(payment);
-
-        // DRAFT -> WAITING_PAYMENT
-        bookingService.markWaitingPayment(booking.getId());
-
-        log.info("Payment initiated: paymentId={}, bookingId={}, provider={}, type={}",
-                payment.getId(), booking.getId(), cmd.provider(), cmd.type());
-
-        return payment.getId();
+        return paymentId;
     }
 
-    /**
-     * TX#2: проставить payment SUCCESS/FAILED + booking CONFIRMED/CANCELED
-     */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PaymentEntity finalizePaymentTx(UUID paymentId, boolean ok) {
         PaymentEntity payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new IllegalArgumentException("Payment not found: " + paymentId));
 
-        UUID bookingId = payment.getBooking().getId();
+        BookingEntity booking = payment.getBooking();
 
         if (ok) {
             payment.setStatus(PaymentStatus.SUCCESS);
-            bookingService.confirmAfterPayment(bookingId);
-            log.info("Payment success: paymentId={}, bookingId={}", paymentId, bookingId);
+
+            // подтверждение ТОЛЬКО из WAITING_PAYMENT
+            if (booking.getStatus() != BookingStatus.WAITING_PAYMENT) {
+                throw new BookingStatusException(booking.getId(), booking.getStatus(), "WAITING_PAYMENT");
+            }
+            booking.setStatus(BookingStatus.CONFIRMED);
+            bookingRepository.save(booking);
         } else {
             payment.setStatus(PaymentStatus.FAILED);
-            bookingService.cancel(bookingId);
-            log.warn("Payment failed: paymentId={}, bookingId={}", paymentId, bookingId);
+
+            if (booking.getStatus() == BookingStatus.WAITING_PAYMENT) {
+                booking.setStatus(BookingStatus.CANCELED);
+                bookingRepository.save(booking);
+            }
         }
 
         return paymentRepository.save(payment);

@@ -21,13 +21,13 @@ public class ResourceQuery {
   }
 
   @QueryMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','USER')")
   public ResourceView resource(@Argument UUID id) {
     return resourceService.getById(id);
   }
 
   @QueryMapping
-  @PreAuthorize("hasRole('ADMIN')")
+  @PreAuthorize("hasAnyRole('ADMIN','USER')")
   public List<ResourceView> resources(@Argument Boolean active) {
     return resourceService.list(active);
   }

@@ -52,7 +52,6 @@ public class ResourceMutation {
     return resourceService.deactivate(id);
   }
 
-  // input-ы как вложенные record, чтобы не плодить файлы
   public record CreateResourceInput(String name, String description) {}
   public record UpdateResourceInput(UUID id, String name, String description) {}
 }
