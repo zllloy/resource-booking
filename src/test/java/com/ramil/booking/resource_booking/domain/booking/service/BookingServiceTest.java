@@ -25,6 +25,7 @@ import com.ramil.booking.resource_booking.domain.user.entity.AppUserEntity;
 import com.ramil.booking.resource_booking.domain.user.model.Role;
 import com.ramil.booking.resource_booking.domain.user.repository.AppUserRepository;
 import com.ramil.booking.resource_booking.domain.user.security.CurrentUserProvider;
+import com.ramil.booking.resource_booking.domain.booking.mapper.BookingMapper;
 
 class BookingServiceTest {
 
@@ -32,9 +33,10 @@ class BookingServiceTest {
     private final ResourceRepository resourceRepository = mock(ResourceRepository.class);
     private final AppUserRepository appUserRepository = mock(AppUserRepository.class);
     private final CurrentUserProvider currentUser = mock(CurrentUserProvider.class);
+    private final BookingMapper bookingMapper = mock(BookingMapper.class);
 
     private final BookingService bookingService =
-            new BookingService(bookingRepository, resourceRepository, appUserRepository, currentUser);
+            new BookingService(bookingRepository, resourceRepository, appUserRepository, currentUser, bookingMapper);
 
     @Test
     void markWaitingPayment_moves_draft_to_waitingPayment() {
@@ -57,6 +59,8 @@ class BookingServiceTest {
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
         when(bookingRepository.saveAndFlush(any(BookingEntity.class))).thenAnswer(inv -> inv.getArgument(0));
+        BookingView expectedView = new BookingView(bookingId, userId, resourceId, start, end, BookingStatus.WAITING_PAYMENT);
+        when(bookingMapper.toView(any(BookingEntity.class))).thenReturn(expectedView);
 
         BookingView result = bookingService.markWaitingPayment(bookingId);
 

@@ -9,6 +9,7 @@ import com.ramil.booking.resource_booking.domain.booking.repository.BookingRepos
 import com.ramil.booking.resource_booking.domain.payment.dto.PaymentView;
 import com.ramil.booking.resource_booking.domain.payment.dto.StartPaymentCommand;
 import com.ramil.booking.resource_booking.domain.payment.entity.PaymentEntity;
+import com.ramil.booking.resource_booking.domain.payment.mapper.PaymentMapper;
 import com.ramil.booking.resource_booking.domain.payment.exception.PaymentAccessDeniedException;
 import com.ramil.booking.resource_booking.domain.payment.model.PaymentProvider;
 import com.ramil.booking.resource_booking.domain.payment.provider.PaymentProviderClient;
@@ -27,6 +28,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+// Сервис для обработки платежей через различные провайдеры
+// После успешной оплаты автоматически подтверждает бронирование
 @Service
 public class PaymentService {
 
@@ -39,6 +42,7 @@ public class PaymentService {
 
     private final BookingRepository bookingRepository;
     private final CurrentUserProvider currentUser;
+    private final PaymentMapper paymentMapper;
 
     public PaymentService(
             PaymentRepository paymentRepository,
@@ -46,13 +50,15 @@ public class PaymentService {
             List<PaymentProviderClient> clientList,
             ObjectMapper objectMapper,
             BookingRepository bookingRepository,
-            CurrentUserProvider currentUser
+            CurrentUserProvider currentUser,
+            PaymentMapper paymentMapper
     ) {
         this.paymentRepository = Objects.requireNonNull(paymentRepository);
         this.paymentTxService = Objects.requireNonNull(paymentTxService);
         this.objectMapper = Objects.requireNonNull(objectMapper);
         this.bookingRepository = Objects.requireNonNull(bookingRepository);
         this.currentUser = Objects.requireNonNull(currentUser);
+        this.paymentMapper = Objects.requireNonNull(paymentMapper);
 
         this.clients = clientList.stream().collect(Collectors.toMap(
                 PaymentProviderClient::provider,
@@ -61,6 +67,8 @@ public class PaymentService {
         ));
     }
 
+    // Запускает процесс оплаты бронирования
+    // После успешной оплаты бронирование автоматически подтверждается
     public PaymentView startPayment(StartPaymentCommand cmd) {
         Objects.requireNonNull(cmd, "cmd");
         Objects.requireNonNull(cmd.bookingId(), "bookingId");
@@ -151,15 +159,7 @@ public class PaymentService {
     }
 
     private PaymentView toView(PaymentEntity p) {
-        return new PaymentView(
-                p.getId(),
-                p.getBooking().getId(),
-                p.getProvider(),
-                p.getType(),
-                p.getStatus(),
-                p.getAmount(),
-                p.getCurrency()
-        );
+        return paymentMapper.toView(p);
     }
 
     @Transactional(readOnly = true)

@@ -20,6 +20,8 @@ import com.ramil.booking.resource_booking.domain.payment.model.PaymentStatus;
 import com.ramil.booking.resource_booking.domain.payment.repository.PaymentRepository;
 import com.ramil.booking.resource_booking.domain.user.security.CurrentUserProvider;
 
+// Транзакционный сервис для операций с платежами
+// Гарантирует ACID для платежных операций
 @Service
 public class PaymentTxService {
 
@@ -37,12 +39,14 @@ public class PaymentTxService {
         this.currentUser = Objects.requireNonNull(currentUser);
     }
 
+    // Начинает транзакцию оплаты
+    // Переводит бронирование в WAITING_PAYMENT и создает запись платежа
     @Transactional
     public UUID startPaymentTx(StartPaymentCommand cmd, JsonNode payload) {
         BookingEntity booking = bookingRepository.findById(cmd.bookingId())
                 .orElseThrow(() -> new BookingNotFoundException(cmd.bookingId()));
 
-        // ✅ защита: user может оплачивать только свою бронь
+        // защита: пользователь может оплачивать только свою бронь
         if (!currentUser.isAdmin() && !booking.getUser().getId().equals(currentUser.currentUserId())) {
             throw new PaymentAccessDeniedException(booking.getId());
         }
@@ -70,6 +74,8 @@ public class PaymentTxService {
         return paymentId;
     }
 
+    // Завершает транзакцию оплаты
+    // При успехе: подтверждает бронирование (CONFIRMED), при ошибке: отменяет (CANCELED)
     @Transactional
     public PaymentEntity finalizePaymentTx(UUID paymentId, boolean ok) {
         PaymentEntity payment = paymentRepository.findById(paymentId)

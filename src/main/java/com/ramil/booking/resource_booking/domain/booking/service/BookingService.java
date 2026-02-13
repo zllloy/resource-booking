@@ -29,7 +29,9 @@ import com.ramil.booking.resource_booking.domain.resource.repository.ResourceRep
 import com.ramil.booking.resource_booking.domain.user.entity.AppUserEntity;
 import com.ramil.booking.resource_booking.domain.user.repository.AppUserRepository;
 import com.ramil.booking.resource_booking.domain.user.security.CurrentUserProvider;
+import com.ramil.booking.resource_booking.domain.booking.mapper.BookingMapper;
 
+// Сервис для управления бронированиями
 @Service
 public class BookingService {
 
@@ -44,19 +46,24 @@ public class BookingService {
     private final ResourceRepository resourceRepository;
     private final AppUserRepository appUserRepository;
     private final CurrentUserProvider currentUser;
+    private final BookingMapper bookingMapper;
 
     public BookingService(
             BookingRepository bookingRepository,
             ResourceRepository resourceRepository,
             AppUserRepository appUserRepository,
-            CurrentUserProvider currentUser
+            CurrentUserProvider currentUser,
+            BookingMapper bookingMapper
     ) {
         this.bookingRepository = Objects.requireNonNull(bookingRepository);
         this.resourceRepository = Objects.requireNonNull(resourceRepository);
         this.appUserRepository = Objects.requireNonNull(appUserRepository);
         this.currentUser = Objects.requireNonNull(currentUser);
+        this.bookingMapper = Objects.requireNonNull(bookingMapper);
     }
 
+    // Создает черновик бронирования со статусом DRAFT
+    // Перед оплатой нужно перевести в WAITING_PAYMENT
     @Transactional
     public BookingView createDraft(CreateBookingCommand cmd) {
         Objects.requireNonNull(cmd, "cmd");
@@ -314,13 +321,6 @@ public class BookingService {
     }
 
     private BookingView toView(BookingEntity b) {
-        return new BookingView(
-                b.getId(),
-                b.getUser().getId(),
-                b.getResource().getId(),
-                b.getStartTime(),
-                b.getEndTime(),
-                b.getStatus()
-        );
+        return bookingMapper.toView(b);
     }
 }

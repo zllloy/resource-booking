@@ -27,6 +27,7 @@ import com.ramil.booking.resource_booking.domain.resource.entity.ResourceEntity;
 import com.ramil.booking.resource_booking.domain.user.entity.AppUserEntity;
 import com.ramil.booking.resource_booking.domain.user.model.Role;
 import com.ramil.booking.resource_booking.domain.user.security.CurrentUserProvider;
+import com.ramil.booking.resource_booking.domain.payment.mapper.PaymentMapper;
 
 class PaymentServiceTest {
 
@@ -37,6 +38,7 @@ class PaymentServiceTest {
 
     private BookingRepository bookingRepository;
     private CurrentUserProvider currentUser;
+    private PaymentMapper paymentMapper;
 
     private PaymentService paymentService;
 
@@ -49,6 +51,7 @@ class PaymentServiceTest {
 
         bookingRepository = mock(BookingRepository.class);
         currentUser = mock(CurrentUserProvider.class);
+        paymentMapper = mock(PaymentMapper.class);
 
         when(cardClient.provider()).thenReturn(PaymentProvider.CARD);
 
@@ -58,7 +61,8 @@ class PaymentServiceTest {
                 List.of(cardClient),
                 objectMapper,
                 bookingRepository,
-                currentUser
+                currentUser,
+                paymentMapper
         );
     }
 
@@ -81,6 +85,8 @@ class PaymentServiceTest {
 
         PaymentEntity finalized = paymentEntity(paymentId, bookingId, PaymentStatus.SUCCESS, cmd);
         when(paymentTxService.finalizePaymentTx(paymentId, true)).thenReturn(finalized);
+        PaymentView expectedView = new PaymentView(paymentId, bookingId, cmd.provider(), cmd.type(), PaymentStatus.SUCCESS, cmd.amount(), cmd.currency());
+        when(paymentMapper.toView(finalized)).thenReturn(expectedView);
 
         PaymentView view = paymentService.startPayment(cmd);
 
@@ -112,6 +118,8 @@ class PaymentServiceTest {
 
         PaymentEntity finalized = paymentEntity(paymentId, bookingId, PaymentStatus.FAILED, cmd);
         when(paymentTxService.finalizePaymentTx(paymentId, false)).thenReturn(finalized);
+        PaymentView expectedView = new PaymentView(paymentId, bookingId, cmd.provider(), cmd.type(), PaymentStatus.FAILED, cmd.amount(), cmd.currency());
+        when(paymentMapper.toView(finalized)).thenReturn(expectedView);
 
         PaymentView view = paymentService.startPayment(cmd);
 

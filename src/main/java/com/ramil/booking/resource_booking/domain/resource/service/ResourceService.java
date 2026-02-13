@@ -14,8 +14,11 @@ import com.ramil.booking.resource_booking.domain.resource.dto.ResourceView;
 import com.ramil.booking.resource_booking.domain.resource.dto.UpdateResourceCommand;
 import com.ramil.booking.resource_booking.domain.resource.entity.ResourceEntity;
 import com.ramil.booking.resource_booking.domain.resource.exception.ResourceNotFoundException;
+import com.ramil.booking.resource_booking.domain.resource.mapper.ResourceMapper;
 import com.ramil.booking.resource_booking.domain.resource.repository.ResourceRepository;
 
+// Сервис для управления ресурсами (переговорки, оборудование, авто и т.д.)
+// Только администраторы могут управлять ресурсами
 @Service
 public class ResourceService {
 
@@ -23,9 +26,11 @@ public class ResourceService {
     private static final int MAX_DESC_LEN = 1000;
 
     private final ResourceRepository resourceRepository;
+    private final ResourceMapper resourceMapper;
 
-    public ResourceService(ResourceRepository resourceRepository) {
+    public ResourceService(ResourceRepository resourceRepository, ResourceMapper resourceMapper) {
         this.resourceRepository = Objects.requireNonNull(resourceRepository);
+        this.resourceMapper = Objects.requireNonNull(resourceMapper);
     }
 
     @Transactional
@@ -139,6 +144,6 @@ public class ResourceService {
     }
 
     private ResourceView toView(ResourceEntity e) {
-        return new ResourceView(e.getId(), e.getName(), e.getDescription(), e.isActive());
+        return resourceMapper.toView(e);
     }
 }

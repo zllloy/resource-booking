@@ -3,13 +3,7 @@ package com.ramil.booking.resource_booking.domain.resource.dto;
 import java.util.Objects;
 import java.util.UUID;
 
-/**
- * Command for updating an existing resource.
- *
- * @param id          non-null resource id
- * @param name        non-null new name
- * @param description optional new description
- */
+// Команда для обновления существующего ресурса
 public record UpdateResourceCommand(UUID id, String name, String description) {
 
     public UpdateResourceCommand {

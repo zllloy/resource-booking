@@ -1,0 +1,649 @@
+{
+	"info": {
+		"_postman_id": "resource-booking-api",
+		"name": "Resource Booking API",
+		"description": "GraphQL API для системы бронирования ресурсов с интеграцией платежей",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Resources",
+			"item": [
+				{
+					"name": "Get All Resources",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetResources($active: Boolean) {\n  resources(active: $active) {\n    id\n    name\n    description\n    active\n  }\n}",
+								"variables": "{\n  \"active\": true\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Получить список ресурсов. Можно фильтровать по активности."
+					}
+				},
+				{
+					"name": "Get Resource By ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetResource($id: ID!) {\n  resource(id: $id) {\n    id\n    name\n    description\n    active\n  }\n}",
+								"variables": "{\n  \"id\": \"{{resourceId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Получить ресурс по идентификатору."
+					}
+				},
+				{
+					"name": "Create Resource",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateResource($input: CreateResourceInput!) {\n  createResource(input: $input) {\n    id\n    name\n    description\n    active\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"name\": \"Conference Room A\",\n    \"description\": \"Large conference room with projector and whiteboard\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Создать новый ресурс. Только для администраторов."
+					}
+				},
+				{
+					"name": "Update Resource",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation UpdateResource($input: UpdateResourceInput!) {\n  updateResource(input: $input) {\n    id\n    name\n    description\n    active\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"id\": \"{{resourceId}}\",\n    \"name\": \"Updated Conference Room A\",\n    \"description\": \"Updated description\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Обновить существующий ресурс. Только для администраторов."
+					}
+				},
+				{
+					"name": "Delete Resource",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeleteResource($id: ID!) {\n  deleteResource(id: $id)\n}",
+								"variables": "{\n  \"id\": \"{{resourceId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Удалить ресурс. Только для администраторов."
+					}
+				},
+				{
+					"name": "Activate Resource",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation ActivateResource($id: ID!) {\n  activateResource(id: $id) {\n    id\n    name\n    active\n  }\n}",
+								"variables": "{\n  \"id\": \"{{resourceId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Активировать ресурс (сделать доступным для бронирования). Только для администраторов."
+					}
+				},
+				{
+					"name": "Deactivate Resource",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation DeactivateResource($id: ID!) {\n  deactivateResource(id: $id) {\n    id\n    name\n    active\n  }\n}",
+								"variables": "{\n  \"id\": \"{{resourceId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Деактивировать ресурс (сделать недоступным для бронирования). Только для администраторов."
+					}
+				}
+			],
+			"description": "Операции с ресурсами"
+		},
+		{
+			"name": "Bookings",
+			"item": [
+				{
+					"name": "Get My Bookings",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetMyBookings {\n  myBookings {\n    id\n    userId\n    resourceId\n    startTime\n    endTime\n    status\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Получить список своих бронирований."
+					}
+				},
+				{
+					"name": "Get All Bookings (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetAllBookings {\n  allBookings {\n    id\n    userId\n    resourceId\n    startTime\n    endTime\n    status\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Получить все бронирования в системе. Только для администраторов."
+					}
+				},
+				{
+					"name": "Get Booking By ID",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetBooking($id: ID!) {\n  booking(id: $id) {\n    id\n    userId\n    resourceId\n    startTime\n    endTime\n    status\n  }\n}",
+								"variables": "{\n  \"id\": \"{{bookingId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Получить бронирование по идентификатору. Пользователи могут видеть только свои бронирования."
+					}
+				},
+				{
+					"name": "Create Booking Draft",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CreateBookingDraft($input: CreateBookingDraftInput!) {\n  createBookingDraft(input: $input) {\n    id\n    userId\n    resourceId\n    startTime\n    endTime\n    status\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"resourceId\": \"{{resourceId}}\",\n    \"startTime\": \"2026-02-15T10:00:00Z\",\n    \"endTime\": \"2026-02-15T11:00:00Z\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Создать черновик бронирования. Бронирование создается со статусом DRAFT."
+					}
+				},
+				{
+					"name": "Mark Booking Waiting Payment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation MarkBookingWaitingPayment($id: ID!) {\n  markBookingWaitingPayment(id: $id) {\n    id\n    status\n  }\n}",
+								"variables": "{\n  \"id\": \"{{bookingId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Перевести бронирование в статус ожидания оплаты. Бронирование должно быть в статусе DRAFT."
+					}
+				},
+				{
+					"name": "Cancel Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation CancelBooking($id: ID!) {\n  cancelBooking(id: $id) {\n    id\n    status\n  }\n}",
+								"variables": "{\n  \"id\": \"{{bookingId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Отменить бронирование. Можно отменить только бронирования со статусом DRAFT или WAITING_PAYMENT."
+					}
+				}
+			],
+			"description": "Операции с бронированиями"
+		},
+		{
+			"name": "Payments",
+			"item": [
+				{
+					"name": "Get My Payments",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetMyPayments {\n  myPayments {\n    id\n    bookingId\n    provider\n    type\n    status\n    amount\n    currency\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Получить список своих платежей."
+					}
+				},
+				{
+					"name": "Get All Payments (Admin)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{adminAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetAllPayments {\n  allPayments {\n    id\n    bookingId\n    provider\n    type\n    status\n    amount\n    currency\n  }\n}",
+								"variables": ""
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Получить все платежи в системе. Только для администраторов."
+					}
+				},
+				{
+					"name": "Get Payments By Booking",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "query GetPaymentsByBooking($bookingId: ID!) {\n  paymentsByBooking(bookingId: $bookingId) {\n    id\n    bookingId\n    provider\n    type\n    status\n    amount\n    currency\n  }\n}",
+								"variables": "{\n  \"bookingId\": \"{{bookingId}}\"\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Получить список платежей по бронированию."
+					}
+				},
+				{
+					"name": "Start Payment - Card (Instant)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation StartPayment($input: StartPaymentInput!) {\n  startPayment(input: $input) {\n    id\n    bookingId\n    provider\n    type\n    status\n    amount\n    currency\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"bookingId\": \"{{bookingId}}\",\n    \"provider\": \"CARD\",\n    \"type\": \"INSTANT\",\n    \"amount\": \"100.00\",\n    \"currency\": \"USD\",\n    \"payloadJson\": \"{\\\"cardNumber\\\":\\\"4111111111111111\\\",\\\"cvv\\\":\\\"123\\\",\\\"expiryMonth\\\":\\\"12\\\",\\\"expiryYear\\\":\\\"2025\\\"}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Начать оплату через банковскую карту (моментальный платеж). После успешной оплаты бронирование автоматически подтверждается."
+					}
+				},
+				{
+					"name": "Start Payment - PayPal (Instant)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation StartPayment($input: StartPaymentInput!) {\n  startPayment(input: $input) {\n    id\n    bookingId\n    provider\n    type\n    status\n    amount\n    currency\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"bookingId\": \"{{bookingId}}\",\n    \"provider\": \"PAYPAL\",\n    \"type\": \"INSTANT\",\n    \"amount\": \"100.00\",\n    \"currency\": \"USD\",\n    \"payloadJson\": \"{\\\"email\\\":\\\"user@example.com\\\"}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Начать оплату через PayPal (моментальный платеж)."
+					}
+				},
+				{
+					"name": "Start Payment - Card (Deferred)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic {{userAuth}}",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "graphql",
+							"graphql": {
+								"query": "mutation StartPayment($input: StartPaymentInput!) {\n  startPayment(input: $input) {\n    id\n    bookingId\n    provider\n    type\n    status\n    amount\n    currency\n  }\n}",
+								"variables": "{\n  \"input\": {\n    \"bookingId\": \"{{bookingId}}\",\n    \"provider\": \"CARD\",\n    \"type\": \"DEFERRED\",\n    \"amount\": \"100.00\",\n    \"currency\": \"USD\",\n    \"payloadJson\": \"{\\\"cardNumber\\\":\\\"4111111111111111\\\",\\\"cvv\\\":\\\"123\\\"}\"\n  }\n}"
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/graphql",
+							"host": ["{{baseUrl}}"],
+							"path": ["graphql"]
+						},
+						"description": "Начать отложенный платеж через банковскую карту (с возможностью отмены бронирования)."
+					}
+				}
+			],
+			"description": "Операции с платежами"
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "adminEmail",
+			"value": "admin@test.com",
+			"type": "string"
+		},
+		{
+			"key": "adminPassword",
+			"value": "admin",
+			"type": "string"
+		},
+		{
+			"key": "userEmail",
+			"value": "user@test.com",
+			"type": "string"
+		},
+		{
+			"key": "userPassword",
+			"value": "user",
+			"type": "string"
+		},
+		{
+			"key": "adminAuth",
+			"value": "YWRtaW5AdGVzdC5jb206YWRtaW4=",
+			"type": "string",
+			"description": "Base64 encoded admin@test.com:admin"
+		},
+		{
+			"key": "userAuth",
+			"value": "dXNlckB0ZXN0LmNvbTp1c2Vy",
+			"type": "string",
+			"description": "Base64 encoded user@test.com:user"
+		},
+		{
+			"key": "resourceId",
+			"value": "",
+			"type": "string",
+			"description": "Идентификатор ресурса (заполняется после создания)"
+		},
+		{
+			"key": "bookingId",
+			"value": "",
+			"type": "string",
+			"description": "Идентификатор бронирования (заполняется после создания)"
+		}
+	]
+}

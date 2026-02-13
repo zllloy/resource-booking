@@ -8,6 +8,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.Setter;
 
 @Entity
 @Table(name = "resource")
@@ -17,12 +18,15 @@ public class ResourceEntity extends AuditableEntity {
     @Column(name = "id", nullable = false)
     private UUID id;
 
+    @Setter
     @Column(name = "name", nullable = false, length = 120)
     private String name;
 
+    @Setter
     @Column(name = "description")
     private String description;
 
+    @Setter
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
@@ -52,15 +56,4 @@ public class ResourceEntity extends AuditableEntity {
         return active;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public void setActive(boolean active) {
-        this.active = active;
-    }
 }
