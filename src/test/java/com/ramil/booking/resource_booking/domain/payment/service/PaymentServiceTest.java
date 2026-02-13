@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ramil.booking.resource_booking.domain.booking.entity.BookingEntity;
 import com.ramil.booking.resource_booking.domain.booking.model.BookingStatus;
+import com.ramil.booking.resource_booking.domain.booking.repository.BookingRepository;
 import com.ramil.booking.resource_booking.domain.payment.dto.PaymentView;
 import com.ramil.booking.resource_booking.domain.payment.dto.StartPaymentCommand;
 import com.ramil.booking.resource_booking.domain.payment.entity.PaymentEntity;
@@ -25,6 +26,7 @@ import com.ramil.booking.resource_booking.domain.payment.repository.PaymentRepos
 import com.ramil.booking.resource_booking.domain.resource.entity.ResourceEntity;
 import com.ramil.booking.resource_booking.domain.user.entity.AppUserEntity;
 import com.ramil.booking.resource_booking.domain.user.model.Role;
+import com.ramil.booking.resource_booking.domain.user.security.CurrentUserProvider;
 
 class PaymentServiceTest {
 
@@ -32,6 +34,9 @@ class PaymentServiceTest {
     private PaymentTxService paymentTxService;
     private PaymentProviderClient cardClient;
     private ObjectMapper objectMapper;
+
+    private BookingRepository bookingRepository;
+    private CurrentUserProvider currentUser;
 
     private PaymentService paymentService;
 
@@ -42,13 +47,18 @@ class PaymentServiceTest {
         cardClient = mock(PaymentProviderClient.class);
         objectMapper = new ObjectMapper();
 
+        bookingRepository = mock(BookingRepository.class);
+        currentUser = mock(CurrentUserProvider.class);
+
         when(cardClient.provider()).thenReturn(PaymentProvider.CARD);
 
         paymentService = new PaymentService(
                 paymentRepository,
                 paymentTxService,
                 List.of(cardClient),
-                objectMapper
+                objectMapper,
+                bookingRepository,
+                currentUser
         );
     }
 
@@ -148,9 +158,8 @@ class PaymentServiceTest {
                 .hasMessageContaining("Invalid payloadJson");
 
         verifyNoInteractions(paymentTxService);
-        verify(cardClient, never()).charge(any(), any(), any());
+        verify(cardClient, never()).charge(any(), any(), any()); // важно: именно charge не должен вызваться
     }
-
 
     private static PaymentEntity paymentEntity(UUID paymentId, UUID bookingId, PaymentStatus status, StartPaymentCommand cmd) {
         UUID userId = UUID.randomUUID();

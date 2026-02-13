@@ -17,32 +17,53 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Table(name = "booking")
 public class BookingEntity extends AuditableEntity {
 
+    @Getter
     @Id
     @Column(name = "id", nullable = false)
     private UUID id;
 
+    @Getter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private AppUserEntity user;
 
+    @Getter
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "resource_id", nullable = false)
     private ResourceEntity resource;
 
+    @Setter
+    @Getter
     @Column(name = "start_time", nullable = false)
     private OffsetDateTime startTime;
 
+    @Getter
+    @Setter
     @Column(name = "end_time", nullable = false)
     private OffsetDateTime endTime;
 
+    @Getter
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 32)
     private BookingStatus status;
+
+    @Getter
+    @Setter
+    @Column(name = "paid_at")
+    private OffsetDateTime paidAt;
+
+    @Getter
+    @Setter
+    @Column(name = "paid_by", length = 255)
+    private String paidBy;
 
     protected BookingEntity() {
     }
@@ -58,39 +79,4 @@ public class BookingEntity extends AuditableEntity {
         this.status = status;
     }
 
-    public UUID getId() {
-        return id;
-    }
-
-    public AppUserEntity getUser() {
-        return user;
-    }
-
-    public ResourceEntity getResource() {
-        return resource;
-    }
-
-    public OffsetDateTime getStartTime() {
-        return startTime;
-    }
-
-    public OffsetDateTime getEndTime() {
-        return endTime;
-    }
-
-    public BookingStatus getStatus() {
-        return status;
-    }
-
-    public void setStartTime(OffsetDateTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public void setEndTime(OffsetDateTime endTime) {
-        this.endTime = endTime;
-    }
-
-    public void setStatus(BookingStatus status) {
-        this.status = status;
-    }
 }

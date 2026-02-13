@@ -9,4 +9,6 @@ import com.ramil.booking.resource_booking.domain.payment.entity.PaymentEntity;
 
 public interface PaymentRepository extends JpaRepository<PaymentEntity, UUID> {
     List<PaymentEntity> findByBooking_Id(UUID bookingId);
+
+    List<PaymentEntity> findByBooking_User_Id(UUID userId);
 }

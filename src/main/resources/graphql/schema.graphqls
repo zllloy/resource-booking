@@ -6,9 +6,12 @@ type Query {
     # booking
     booking(id: ID!): Booking!
     allBookings: [Booking!]!
+    myBookings: [Booking!]!
 
     #payment
     paymentsByBooking(bookingId: ID!): [Payment!]!
+    myPayments: [Payment!]!
+    allPayments: [Payment!]!
 }
 
 type Mutation {

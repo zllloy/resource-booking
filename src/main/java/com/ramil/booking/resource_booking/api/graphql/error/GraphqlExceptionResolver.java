@@ -24,6 +24,8 @@ import com.ramil.booking.resource_booking.domain.booking.exception.BookingTimeRa
 import com.ramil.booking.resource_booking.domain.resource.exception.ResourceInactiveException;
 import com.ramil.booking.resource_booking.domain.resource.exception.ResourceNotFoundException;
 import com.ramil.booking.resource_booking.domain.user.exception.UserNotFoundException;
+import com.ramil.booking.resource_booking.domain.payment.exception.PaymentAccessDeniedException;
+
 
 @Component
 @Order(-2)
@@ -88,6 +90,13 @@ public class GraphqlExceptionResolver extends DataFetcherExceptionResolverAdapte
                 return err(env, "payloadJson должен быть валидным JSON", ErrorType.BAD_REQUEST, "INVALID_PAYLOAD");
             }
             return err(env, msg, ErrorType.BAD_REQUEST, "BAD_REQUEST");
+        }
+
+        if (ex instanceof PaymentAccessDeniedException) {
+            return err(env,
+                    "У вас недостаточно прав для выполнения этой операции",
+                    ErrorType.FORBIDDEN,
+                    "INSUFFICIENT_PERMISSIONS");
         }
 
         return null;

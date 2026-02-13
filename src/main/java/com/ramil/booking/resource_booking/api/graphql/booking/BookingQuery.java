@@ -31,4 +31,11 @@ public class BookingQuery {
     public List<BookingView> allBookings() {
         return bookingService.listAll();
     }
+
+    @QueryMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public List<BookingView> myBookings() {
+        return bookingService.listMyBookings();
+    }
+
 }

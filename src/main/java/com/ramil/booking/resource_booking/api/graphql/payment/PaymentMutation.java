@@ -28,8 +28,8 @@ public class PaymentMutation {
     public PaymentView startPayment(@Argument StartPaymentInput input) {
         return paymentService.startPayment(new StartPaymentCommand(
                 UUID.fromString(input.bookingId()),
-                PaymentProvider.valueOf(input.provider()),
-                PaymentType.valueOf(input.type()),
+                input.provider(),
+                input.type,
                 new BigDecimal(input.amount()),
                 input.currency(),
                 input.payloadJson()
@@ -38,8 +38,8 @@ public class PaymentMutation {
 
     public record StartPaymentInput(
             String bookingId,
-            String provider,
-            String type,
+            PaymentProvider provider,
+            PaymentType type,
             String amount,
             String currency,
             String payloadJson

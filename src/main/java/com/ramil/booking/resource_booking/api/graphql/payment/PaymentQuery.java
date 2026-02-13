@@ -24,4 +24,16 @@ public class PaymentQuery {
     public List<PaymentView> paymentsByBooking(@Argument UUID bookingId) {
         return paymentService.listByBooking(bookingId);
     }
+
+    @QueryMapping
+    @PreAuthorize("hasRole('USER') or hasRole('ADMIN')")
+    public List<PaymentView> myPayments() {
+        return paymentService.listMyPayments();
+    }
+
+    @QueryMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public List<PaymentView> allPayments() {
+        return paymentService.listAllPayments();
+    }
 }
