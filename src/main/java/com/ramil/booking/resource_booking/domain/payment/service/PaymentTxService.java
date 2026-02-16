@@ -40,7 +40,8 @@ public class PaymentTxService {
     }
 
     // Начинает транзакцию оплаты
-    // Переводит бронирование в WAITING_PAYMENT и создает запись платежа
+    // Ожидает бронирование в статусе WAITING_PAYMENT (после markBookingWaitingPayment)
+    // Создаёт запись платежа
     @Transactional
     public UUID startPaymentTx(StartPaymentCommand cmd, JsonNode payload) {
         BookingEntity booking = bookingRepository.findById(cmd.bookingId())
@@ -51,12 +52,9 @@ public class PaymentTxService {
             throw new PaymentAccessDeniedException(booking.getId());
         }
 
-        if (booking.getStatus() != BookingStatus.DRAFT) {
-            throw new BookingStatusException(booking.getId(), booking.getStatus(), "DRAFT");
+        if (booking.getStatus() != BookingStatus.WAITING_PAYMENT) {
+            throw new BookingStatusException(booking.getId(), booking.getStatus(), "WAITING_PAYMENT");
         }
-
-        booking.setStatus(BookingStatus.WAITING_PAYMENT);
-        bookingRepository.saveAndFlush(booking);
 
         UUID paymentId = UUID.randomUUID();
         PaymentEntity payment = new PaymentEntity(

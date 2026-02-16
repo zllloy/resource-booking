@@ -178,6 +178,14 @@ class BookingServiceTest {
         when(bookingRepository.findConflicts(eq(resourceId), any(), any(), anyList())).thenReturn(List.of());
         when(bookingRepository.save(any(BookingEntity.class))).thenAnswer(inv -> inv.getArgument(0));
 
+        BookingView expectedView = new BookingView(
+                UUID.randomUUID(), userId, resourceId,
+                OffsetDateTime.parse("2026-02-10T10:00:00Z"),
+                OffsetDateTime.parse("2026-02-10T11:00:00Z"),
+                BookingStatus.DRAFT
+        );
+        when(bookingMapper.toView(any(BookingEntity.class))).thenReturn(expectedView);
+
         OffsetDateTime start = OffsetDateTime.parse("2026-02-10T10:00:00Z");
         OffsetDateTime end = start.plusHours(1);
 
